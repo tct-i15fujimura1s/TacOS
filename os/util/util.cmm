@@ -55,10 +55,6 @@
 #include <kernel.hmm>
 #include "util.hmm"
 
-#ifdef VGA
-#include <vga.hmm>                                  // TaC7aでVGAを使用する場合
-#endif 
-
 // util の初期化ルーチン
 public void utilInit() {
   MEM = _ItoA(0);                                   // MEMは0x0000を指すchar型
@@ -120,6 +116,15 @@ public boolean putBuf(RingBuf buf, char c) {
   return true;
 }
 
+// リングバッファの末尾 1 文字を削除
+public boolean unputBuf(RingBuf buf) {
+  if (buf.cnt==0) return false;                     // バッファが空なら終了
+  buf.head = buf.head - 1;                          // ポインタを戻す
+  if(buf.head<0) buf.head = buf.size - 1;           // 1周した
+  buf.cnt = buf.cnt - 1;                            // カウンタを減らす
+  return true;
+}
+
 // リングバッファから 1 文字取得
 public int getBuf(RingBuf buf) {
   if (buf.cnt==0) return -1;                        // 空の場合は -1 を返す
@@ -131,21 +136,15 @@ public int getBuf(RingBuf buf) {
 
 // --------------------------- デバッグ用表示ルーチン -------------------------
 // 1文字出力（起動時のメッセージなどを表示するための簡易版）
-#ifndef VGA
 void dbgPutSIO(char c) {                            // SIO への出力
   while ((in(0x0a) & 0x80)==0)
     ;
   out(0x08, ord(c));
 }
-#endif
 
 void dbgPutCh(char c) {                             // デバッグ用の表示ルーチン
-#ifdef VGA
-  putVGA(c);
-#else
   if (c=='\n') dbgPutSIO('\r');
   dbgPutSIO(c);
-#endif
 }
 
 // 文字列出力
@@ -202,7 +201,7 @@ void __putnum_sub(int x, int n) {
 
 // グローバル変数を使用するため割り込み禁止(本来なら割り込み禁止する必要はない)
 void __uputnum(int x, int w, char p, int base) {
-  int r =setPri(DI|KERN);                            // 割り込み禁止 
+  int r =setPri(DI|KERN);                            // 割り込み禁止
   __putnum_b = base;
   __putnum_m = false;
   __putnum_w = w;
@@ -214,7 +213,7 @@ void __uputnum(int x, int w, char p, int base) {
 // グローバル変数を使用するため割り込み禁止(本来なら割り込み禁止する必要はない)
 void __sputnum(int x, int w, char p, int base) {
   int r =setPri(DI|KERN);                            // 割り込み禁止
-  
+
   __putnum_b = base;
   __putnum_m = false;
   if (x<0) {
@@ -229,7 +228,7 @@ void __sputnum(int x, int w, char p, int base) {
   setPri(r);                                         // 割り込み復元
 }
 
-public int printF(char[] fmt, ...) {  
+public int printF(char[] fmt, ...) {
   int[] args = _args();
   int n = 0;
   int arg = args[0];
@@ -266,7 +265,7 @@ public int printF(char[] fmt, ...) {
       } else {
         dbgPutCh(c);
       }
-    } else 
+    } else
       dbgPutCh(c);
   }
   return n;

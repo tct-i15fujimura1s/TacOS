@@ -28,9 +28,10 @@
  * $Id$
  */
 
-public int ttyLink;                                 // 端末サーバへのリンク番号
-
-public void ttyMain();                              // 待ち受けルーチン
+/*----------------------------------------------------------------------------
+ * 初期化
+ */
+public void ttyInit();
 
 /*----------------------------------------------------------------------------
  *   名前   : conRead
@@ -55,4 +56,20 @@ public int conRead(void[] buf, int len);
  */
 public int conWrite(void[] buf);
 
+/*----------------------------------------------------------------------------
+ *   名前   : conCtl
+ *   戻り値 : 0
+ *   引数   : int request 実行する操作
+ *         : int argp 操作のパラメータ
+ *   解説   : ttyのモードなどを操作する
+ */
+public int conCtl(int request, int argp);
 
+// conCtl() に渡す request 番号
+#define CONCTL_GETMODE        0x0000      // 入出力のモードを取得する
+#define CONCTL_SETMODE        0x0001      // 入出力のモードを変更する
+#define CONCTL_SETBUF         0x0003      // conRead の内部バッファサイズを変更する
+
+// CONCTL_SETMODE
+#define TTY_MODE_COOKED       0x0001
+#define TTY_MODE_NONBLOCK     0x0002
