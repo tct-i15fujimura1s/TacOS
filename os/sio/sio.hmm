@@ -38,3 +38,4 @@ public int getSIOCtl();                   // 入出力の設定を取得
 
 #define SIO_COOKED    0x0001              // cooked モード
 #define SIO_ECHO      0x0002              // echo モード
+#define SIO_NONBLOCK  0x0004              // nonblock モード

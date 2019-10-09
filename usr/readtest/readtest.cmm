@@ -66,5 +66,15 @@ public int main(int argc, char[][] argv) {
   ttyCtl(TTYCTL_SETMODE, mode);               // 元のモードに戻す
   printf("\n[%d] \"%s\"\n", count, buf);
 
+  printf("nonblock input (1sec): ");
+  fflush(stdout);
+  sleep(1000);
+  int nonblockMode = mode | 0x0004;
+  ttyCtl(TTYCTL_SETMODE, nonblockMode);       // NONBLOCKモードに変更
+  count = ttyRead(buf, BUF-1);
+  buf[count] = '\0';                          // bufの終端を設定
+  ttyCtl(TTYCTL_SETMODE, mode);               // 元のモードに戻す
+  printf("\n[%d] \"%s\"\n", count, buf);
+
   return 0;
 }

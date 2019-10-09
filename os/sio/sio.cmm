@@ -56,6 +56,7 @@ boolean trsPrevCR=false;                      // 直前に送信した文字がC
 // 入出力の設定
 boolean cooked=true;                          // 前処理をする
 boolean echoBack=true;                        // エコーバックをする
+boolean nonblock=false;                       // ノンブロッキングIO
 
 // SIO 送信割込み処理ルーチン
 interrupt sioTrs() {
@@ -74,7 +75,7 @@ interrupt sioTrs() {
 }
 
 // SIO へ１文字出力
-void put(char c) {
+boolean put(char c) {
   int r=setPri(DI|KERN);                      // SIO割り込みが発生しないように
   if (trsIdle) {                              // トランスミッタがアイドルなら
     out(SIO_Data,ord(c));                     //   送信を開始する
@@ -83,12 +84,14 @@ void put(char c) {
     trsIdle = false;                          //   トランスミッタは動作中
   } else {                                    // トランスミッタが動作中なら
     if (ISFull(trsBuf)) {                     //   送信バッファに空きが無いなら
+      if (nonblock) return false;             //     ノンブロックなら失敗して終了
       trsWait=true;                           //     フラグを立てて
       semP(trsSem);                           //       空きができるのを待つ
     }
     putBuf(trsBuf, c);                        //     送信バッファに１文字追加
   }
   setPri(r);
+  return true;                                // 書き込み成功
 }
 
 public int putSIO(char[] buf, int len) {
@@ -103,7 +106,7 @@ public int putSIO(char[] buf, int len) {
         trsPrevCR = false;
       }
     }
-    put(c);
+    if(!put(c)) break;                        // 書き込めなかったらそこで終了
   }
   return count;
 }
@@ -241,6 +244,7 @@ public int getSIOCtl() {
   int ctl = 0;
   if (cooked) ctl = ctl | SIO_COOKED;
   if (echoBack) ctl = ctl | SIO_ECHO;
+  if (nonblock) ctl = ctl | SIO_NONBLOCK;
   setPri(r);                                // 割り込み状態を復元
   return ctl;
 }
@@ -250,5 +254,6 @@ public void setSIOCtl(int ctl) {
   int r = setPri(DI|KERN);                  // 割り込み禁止、カーネル
   cooked = (ctl&SIO_COOKED)!=0;
   echoBack = (ctl&SIO_ECHO)!=0;
+  nonblock = (ctl&SIO_NONBLOCK)!=0;
   setPri(r);                                // 割り込み状態を復元
 }
