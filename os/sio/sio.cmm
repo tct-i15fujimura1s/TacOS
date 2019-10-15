@@ -213,6 +213,7 @@ public int getSIO(char[] buf, int len) {
       char c = buf[count-1];                  //     末尾の文字
       if (c=='\n') break;                     //     改行なら終了
     }
+    if (nonblock) break;
     reqLen = len - count;
     semP(rcvSem);                             //   次の入力を待つ
   }
