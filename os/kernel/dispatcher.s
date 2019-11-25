@@ -82,6 +82,11 @@ _dispatch
         st      g0,_curProc     ; 現在のプロセス(curProc)に設定する
         ld      sp,0,g0         ; PCB から SP を取り出す
         ;
+        ;--------------- メモリ保護機能を作動 -----------------
+        ld      g1,18,g0        ; PCB から memLen を取り出す
+        add     g1,16,g0        ; Base=0000h なのでLimit+=PCB.memBase
+        out     g1,0xF6         ; Limit レジスタに格納
+        ;
         ;-------- G13(SP)以外の CPU レジスタを復元 -----------
         pop     usp             ; ユーザモードスタックポインタ(G14)を復元
         pop     fp              ; フレームポインタ(G12)を復元

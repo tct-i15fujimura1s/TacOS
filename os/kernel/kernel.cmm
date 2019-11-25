@@ -602,6 +602,11 @@ void exception(int errno, char[] msg) {
   else          panic(msg);
 }
 
+// メモリ保護違反
+interrupt memVio() {
+  exception(EMEMVIO, "memVio");
+}
+
 // ゼロ割算
 interrupt zeroDiv() {
   exception(EZERODIV, "zeroDiv");
@@ -620,6 +625,7 @@ interrupt illInst() {
 // 例外処理初期化 : ベクタの初期化
 void excpInit() {                                   // ベクタにハンドラを登録
   int[] VECTOR =  _ItoA(0xffe0);
+  VECTOR[11] = addrof(memVio);
   VECTOR[12] = addrof(zeroDiv);
   VECTOR[13] = addrof(privVio);
   VECTOR[14] = addrof(illInst);
