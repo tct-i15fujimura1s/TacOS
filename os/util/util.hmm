@@ -91,6 +91,7 @@ public boolean unputBuf(RingBuf buf);         // true:正常, false:EOF
 
 // デバッグ関係
 public void dbgPutStr(char[] str);            // ちょっとした動作確認用
+public void dbgPutInt(int i);
 
 #ifdef DEBUG
 public int printF(char[] fmt, ...);

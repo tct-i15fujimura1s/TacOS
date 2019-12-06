@@ -160,6 +160,17 @@ public void dbgPutStr(char[] str) {
     dbgPutCh(str[i]);
 }
 
+// 数値出力
+public void dbgPutInt(int i) {
+  if (i<0) {
+    dbgPutCh('-');
+    i = -i;
+  }
+  for (int n=10000; n>0; n=n/10)
+    if (i>n)
+      dbgPutCh(chr(0x30 + (i%(n*10))/n));
+}
+
 // ------------------------------- エラー表示 ----------------------------
 public void panic(char[] msg, ...) {
   setPri(DI|KERN);                                  // 割り込み禁止

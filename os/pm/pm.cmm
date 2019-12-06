@@ -187,7 +187,7 @@ int relocate() {
     if (eof || _uCmp(rel, textSiz+dataSiz)>=0)      // ファイルが短いか
         return ENOEXEC;                             //   場所が範囲外ならエラー
     rel = rel / 2;                                  // ワード位置に変換
-    TEXT[rel] = TEXT[rel]+text;                     // ポインタにパッチを当てる
+    // TEXT[rel] = TEXT[rel]+text;                     // ポインタにパッチを当てる
   }
   return 0;                                         // 正常終了
 }

@@ -2,7 +2,7 @@
 ;  TacOS Source Code
 ;     Tokuyama kousen Advanced educational Computer.
 ;
-;  Copyright (C) 2011 - 2016 by
+;  Copyright (C) 2011 - 2019 by
 ;                       Dept. of Computer Science and Electronic Engineering,
 ;                       Tokuyama College of Technology, JAPAN
 ;
@@ -21,6 +21,7 @@
 ;
 ; kernel/dispatcher.s : ディスパッチャ
 ;
+; 2019.12.05 : メモリ保護を追加
 ; 2017.10.27 : ルーチン名を変更(_dispatch -> _yield, _startProc -> _dispatch)
 ; 2015.11.17 : PCB の項目を追加したため、[next]と[magic]へのポインタをずらした
 ; 2015.09.02 : ソースコードを清書(重村)
@@ -83,8 +84,11 @@ _dispatch
         ld      sp,0,g0         ; PCB から SP を取り出す
         ;
         ;--------------- メモリ保護機能を作動 -----------------
+        ld      g1,#0x0001      ; b0 (Enable MMU) = 1
+        out     g1,0xF2         ; MMU を有効化
+        ld      g1,16,g0        ; PCB から memBase を取り出す
+        out     g1,0xF4         ; Base レジスタに格納
         ld      g1,18,g0        ; PCB から memLen を取り出す
-        add     g1,16,g0        ; Base=0000h なのでLimit+=PCB.memBase
         out     g1,0xF6         ; Limit レジスタに格納
         ;
         ;-------- G13(SP)以外の CPU レジスタを復元 -----------
