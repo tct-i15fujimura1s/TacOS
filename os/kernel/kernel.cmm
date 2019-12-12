@@ -299,7 +299,7 @@ int regProcTbl(PCB pcb) {
 int newStk(int sp, int start, int flag, int usp) {
   sp = sp - 32;                                     // 以下で 16Word 書込むので
   int[] STK = _ItoA(sp);                            // スタックトップアドレス
-  STK[15] = start;                                  // PC       の初期値
+  STK[15] = 0;                                      // PC       の初期値
   STK[14] = flag;                                   // FLAG     の初期値
   STK[13] = 0x0000;                                 // G0       の初期値
   STK[12] = 0x0000;                                 // G1       の初期値
@@ -314,7 +314,7 @@ int newStk(int sp, int start, int flag, int usp) {
   STK[3]  = 0x0000;                                 // G10      の初期値
   STK[2]  = 0x0000;                                 // G11      の初期値
   STK[1]  = 0x0000;                                 // G12(FP)  の初期値
-  STK[0]  = usp;                                    // G14(USP) の初期値
+  STK[0]  = usp - start;                            // G14(USP) の初期値
   return sp;
 }
 

@@ -187,7 +187,6 @@ int relocate() {
     if (eof || _uCmp(rel, textSiz+dataSiz)>=0)      // ファイルが短いか
         return ENOEXEC;                             //   場所が範囲外ならエラー
     rel = rel / 2;                                  // ワード位置に変換
-    // TEXT[rel] = TEXT[rel]+text;                     // ポインタにパッチを当てる
   }
   return 0;                                         // 正常終了
 }
@@ -221,9 +220,9 @@ void copyArgsEnvp(char[][] argv, char[][] envp) {
 
   // スタックの底に確保した領域に argc, argv, envp, ... を書込む
   int[] USP = _ItoA(usp);                           // スタックを表現する配列
-  int argvAddr = usp + 2 + 2 + 2;
-  int envpAddr = argvAddr + 2*argc + 2;
-  int strAddr  = envpAddr + 2*envs + 2;             // 文字列の格納位置
+  int argvAddr = usp - text + 2 + 2 + 2;            // argv 参照配列の論理アドレス
+  int envpAddr = argvAddr + 2*argc + 2;             // envp 参照配列の論理アドレス
+  int strAddr  = envpAddr + 2*envs + 2;             // 文字列の論理アドレス
 
   USP[0] = argc;                                    // argc 格納
   USP[1] = argvAddr;                                // argv 参照配列の位置
