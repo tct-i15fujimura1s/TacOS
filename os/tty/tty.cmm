@@ -49,6 +49,7 @@
 #include <sio.hmm>
 #define getStr(buf, len) getSIO(buf, len)
 #define putStr(buf, len) putSIO(buf, len)
+#define _uAddr(offset) (_addrAdd(curProc.memBase, _AtoI((offset))))
 
 #include "tty.hmm"
 
@@ -61,6 +62,7 @@ int readSem, writeSem;
 //----------------------------------------------------------------------------
 // ttyRead システムコール
 public int ttyRead(void[] buf, int len) {
+  buf = _uAddr(buf);                                    // 絶対アドレスに変換
   if (len<0) return -1;                                 // len<0 ならエラー
   semP(readSem);
   int r = getStr(buf, len);
@@ -70,6 +72,7 @@ public int ttyRead(void[] buf, int len) {
 
 // ttyWrite システムコール
 public int ttyWrite(void[] buf, int len) {
+  buf = _uAddr(buf);                                    // 絶対アドレスに変換
   if (len<0) return -1;                                 // len<0 ならエラー
   semP(writeSem);
   int r = putStr(buf, len);
