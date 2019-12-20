@@ -84,8 +84,6 @@ _dispatch
         ld      sp,0,g0         ; PCB から SP を取り出す
         ;
         ;--------------- メモリ保護機能を作動 -----------------
-        ld      g1,#0x0001      ; b0 (Enable MMU) = 1
-        out     g1,0xF2         ; MMU を有効化
         ld      g1,16,g0        ; PCB から memBase を取り出す
         out     g1,0xF4         ; Base レジスタに格納
         ld      g1,18,g0        ; PCB から memLen を取り出す

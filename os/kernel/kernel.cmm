@@ -299,7 +299,7 @@ int regProcTbl(PCB pcb) {
 int newStk(int sp, int start, int flag, int usp) {
   sp = sp - 32;                                     // 以下で 16Word 書込むので
   int[] STK = _ItoA(sp);                            // スタックトップアドレス
-  STK[15] = 0;                                      // PC       の初期値
+  STK[15] = start;                                  // PC       の初期値
   STK[14] = flag;                                   // FLAG     の初期値
   STK[13] = 0x0000;                                 // G0       の初期値
   STK[12] = 0x0000;                                 // G1       の初期値
@@ -335,7 +335,7 @@ public void newProc(int start,int nice,int usp,int flag,PCB pcb,int[] fds) {
   pcb.evtCnt   = 0;                                 // タイマー停止中
   pcb.evtSem   = newSem(0);                         // タイマー用のセマフォ
   pcb.memBase  = null;                              // メモリ領域へのポインタ
-  pcb.memLen   = 0;                                 // メモリ領域のサイズ
+  pcb.memLen   = 0xffff;                            // メモリ領域のサイズ
   pcb.parent   = null;                              // 親プロセスへのポインタ
   pcb.exitStat = -1;                                // プロセスの終了ステータス
   if (fds!=null) {                                  // オープンファイル一覧が
@@ -598,6 +598,9 @@ void lnkInit() {
 // 例外がユーザモードで発生したならユーザプロセスを終了させる
 // カーネルモードで発生したならカーネルのバグなので panic()
 void exception(int errno, char[] msg) {
+#ifdef DEBUG
+  printF("exception: errno=%d, msg=%s\n", errno, msg);
+#endif
   if (isUser()) exit(errno);
   else          panic(msg);
 }
@@ -644,8 +647,12 @@ public void main() {
   lnkInit();                                        // リンク(lnkTbl)初期化
   ttyInit();                                        // TTY初期化
   procInit();                                       // プロセス(procTbl)初期化
+  out(0xf2, 0x0001);                                // MMU を有効にする
 
   // システムスタート
+#ifdef DEBUG
+  printF("Starting system...\n");
+#endif
   dispatch();                                       // プロセス実行開始
   panic("main");                                    // ここは実行されないはず
 }

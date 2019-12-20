@@ -182,14 +182,6 @@ int readTextData() {
 
 // 再配置を行う
 int relocate() {
-  int[] TEXT = _ItoA(text);                         // TEXT+DATA を表現する配列
-  for (int i=0; i<relSiz; i=i+2) {                  // 再配置情報がある間
-    int rel = getWord();                            // ポインタがある場所
-    if ((rel&1)!=0) return ENOEXEC;                 // ポインタは偶数アドレス
-    if (eof || _uCmp(rel, textSiz+dataSiz)>=0)      // ファイルが短いか
-        return ENOEXEC;                             //   場所が範囲外ならエラー
-    rel = rel / 2;                                  // ワード位置に変換
-  }
   return 0;                                         // 正常終了
 }
 
@@ -259,7 +251,7 @@ printF("    bssBase =%04x  bssSiz =%d\n",bss,bssSiz);
 printF("    stkBase =%04x  stkSiz =%d\n",bss+bssSiz,stkSiz);
 printF("                   relSiz =%d\n",relSiz);
 printF("********************************\n");
-halt();
+_halt();
 #endif
 
   if ((r=readTextData())==0)                       // テキストとデータを読み
@@ -290,7 +282,7 @@ halt();
 
   int priv = EI|USER;                              // 普通はユーザモード
   if (magic==IMAGIC) priv = EI|IPRV;               // I/O特権モード
-  newProc(text, p.enice, usp, priv, pcb, fds);     // PCB 等初期化
+  newProc(0, p.enice, usp, priv, pcb, fds);     // PCB 等初期化
   pcb.memBase = _ItoA(text);                       // メモリ空間アドレス
   pcb.memLen  = end - text;                        // メモリ空間サイズ
   pcb.parent  = p;                                 // 親プロセスを設定
