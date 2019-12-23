@@ -595,12 +595,22 @@ void lnkInit() {
 //----------------------------------------------------------------------------
 #define isUser() ((ord(MEM[_fp()+9])&KERN)==0)      // ユーザプロセス
 
+void puts(char[] msg) {
+  ttyWrite(msg, strLen(msg));
+}
+
 // 例外がユーザモードで発生したならユーザプロセスを終了させる
 // カーネルモードで発生したならカーネルのバグなので panic()
 void exception(int errno, char[] msg) {
 #ifdef DEBUG
   printF("exception: errno=%d, msg=%s\n", errno, msg);
 #endif
+  puts("Exception in ");
+  if (isUser()) puts("user mode: ");
+  else puts("kernel mode: ");
+  puts(msg);
+  puts("\n");
+  sleep(10);
   if (isUser()) exit(errno);
   else          panic(msg);
 }

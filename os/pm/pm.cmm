@@ -69,7 +69,9 @@
 #include "pm.hmm"
 #include "exeFile.hmm"
 
-#define usrAddr(offset) (_addrAdd(curProc.memBase, (offset)))
+void[] _VtoA(int vaddr, PCB pcb) {
+  return _addrAdd(pcb.memBase, vaddr);
+}
 
 // PM は単一プロセスで実行されるので、ほとんどのグローバル変数アクセスで
 // 排他を気にしなくて良い
@@ -297,7 +299,7 @@ _halt();
 int pmSysCall(int op, int prm1, int prm2, int prm3, PCB client) {
   int r = -1;
   if (op==EXEC) { // exec(path,argv,parent)
-    r = sysExec(usrAddr(prm1), usrAddr(prm2), usrAddr(prm3), client);
+    r = sysExec(_VtoA(prm1, client), _VtoA(prm2, client), _VtoA(prm3, client), client);
   } else
     r = -1;                                         // どれでもなければエラー
   return r;
@@ -335,7 +337,7 @@ public void exit(int status) {
 }
 
 public int wait(int[] sta) {
-  sta = usrAddr(_AtoI(sta));                        // 絶対アドレスに変換
+  sta = _addrAdd(curProc.memBase, _AtoI(sta));      // 物理アドレスに変換
   int r = ECHILD;                                   // 一旦、エラー番号を設定
   PCB child = waitChild();                          // 子プロセスの終了を待つ
   if (child!=null) {                                // 子プロセスが終了した
