@@ -284,7 +284,7 @@ _halt();
 
   int priv = EI|USER;                              // 普通はユーザモード
   if (magic==IMAGIC) priv = EI|IPRV;               // I/O特権モード
-  newProc(0, p.enice, usp, priv, pcb, fds);     // PCB 等初期化
+  newProc(0, p.enice, usp-text, priv, pcb, fds);   // PCB 等初期化
   pcb.memBase = _ItoA(text);                       // メモリ空間アドレス
   pcb.memLen  = end - text;                        // メモリ空間サイズ
   pcb.parent  = p;                                 // 親プロセスを設定

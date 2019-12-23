@@ -314,7 +314,7 @@ int newStk(int sp, int start, int flag, int usp) {
   STK[3]  = 0x0000;                                 // G10      の初期値
   STK[2]  = 0x0000;                                 // G11      の初期値
   STK[1]  = 0x0000;                                 // G12(FP)  の初期値
-  STK[0]  = usp - start;                            // G14(USP) の初期値
+  STK[0]  = usp;                                    // G14(USP) の初期値
   return sp;
 }
 
