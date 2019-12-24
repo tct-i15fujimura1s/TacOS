@@ -177,7 +177,8 @@ public void panic(char[] msg, ...) {
 
 #ifdef DEBUG
   int[] args = _args();
-  printF("### panic(PID=%d(", getPid());
+  int[] sp = _ItoA(curProc.sp);
+  printF("### panic(PID=%d,NICE=%d,BASE=%04x(", getPid(), curProc.nice, _AtoI(curProc.memBase));
   int[] fp = _addrAdd(args, -6);
   for (int i=0; i<3; i=i+1) {                       // 関数のトレースを3階層
     printF("<-(%04x)",fp[1]);
