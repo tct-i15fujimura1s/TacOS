@@ -40,10 +40,15 @@
 #include <tty.hmm>
 #include <pm.hmm>
 int[] sta = array(1);                           // ステータス格納領域の確保
+char[][] envp = array(2);
 
 public void initMain() {
+  // 環境変数の初期化
+  envp[0] = "PWD=/";
+  envp[1] = null;
+
   while (true) {
-    int pid = exec("/bin/shell.exe", null, null);// シェルプロセスを生成する
+    int pid = exec("/bin/shell.exe", null, envp);// シェルプロセスを生成する
     if (pid<0) ttyWrite("Shell doesn't start\n", 20);// シェルが生成できなかった
     while (wait(sta)!=pid)                      // 親のないプロセスの終了待ち
       ;                                         // もしもシェルが終了したら

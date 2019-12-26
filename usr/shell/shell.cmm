@@ -115,7 +115,10 @@ void builtinCd(char[][] argv) {                   // 引数のディレクトリ
     perror("cd");
     return;                                       //     終了
   }
-  absPath(path, dir, PATHMAX+1);                  //   絶対パスに変換
+  if (absPath(path, dir, PATHMAX+1) || dir==null) {//   絶対パスに変換
+    perror("cd");
+    return;
+  }
   Stat sta;
   if (stat(dir, sta) < 0)                         //   stat がエラー
     perror("cd");
@@ -126,9 +129,14 @@ void builtinCd(char[][] argv) {                   // 引数のディレクトリ
   free(dir);                                      //   メモリを解放
 }
 
+void builtinExit(char[][] argv) {                 // シェルを終了する
+  int status = 0;
+  if (argv[1] != null) status = atoi(argv[0]);    //   終了ステータス
+  exit(status);
+}
+
 public int main() {
   fprintf(stderr, "TacOS Shell\n");
-  putEnv("PWD=/");
 
   char[] buf = malloc(LMAX+1);                    // キー入力文字列格納用
   for (;;) {
@@ -153,6 +161,8 @@ public int main() {
       builtinUnset(argv);
     } else if (strCmp(argv[0], "cd") == 0) {      // cd dir
       builtinCd(argv);
+    } else if (strCmp(argv[0], "exit") == 0) {    // exit
+      builtinExit(argv);
     } else {                                      // ビルトインではない
       // コマンド名の長さをチェックする
       if (PATHMAX<strLen(BIN)+strLen(argv[0])+strLen(EXE)) {
